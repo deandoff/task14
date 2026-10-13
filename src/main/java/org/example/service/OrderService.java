@@ -11,14 +11,17 @@ public class OrderService {
 
     private static final double VIP_DISCOUNT = 0.10;
     private static final double NEW_CUSTOMER_DISCOUNT = 0.05;
+    private static final double BULK_DISCOUNT = 0.01;
 
     private static final double ADDITIONAL_DISCOUNT_THRESHOLD = 1000.0;
     private static final double ADDITIONAL_DISCOUNT_AMOUNT = 50.0;
+    private static final int BULK_DISCOUNT_THRESHOLD = 10;
 
     /**
      * Сервис расчитывает итоговую стоимость заказа с учетом скидок.
      * Суммирует стоимость всех товаров с учетом их количества,
      * применяет скидку в зависимости от статуса клиента (10% для ВИП и 5% для новых)
+     * или в зависимости от количества товаров в заказе (1% если заказ содержит более 10 товаров)
      * и вычитает дополнительную скидку 50, если итоговая сумма превышает 1000.
      *
      * @param items список товаров в заказе
@@ -28,6 +31,7 @@ public class OrderService {
     public double calc(List<Item> items, String type) {
         double total = calculateTotal(items);
         total = applyCustomerDiscount(total, type);
+        total = applyBulkDiscount(total, items);
         total = applyAdditionalDiscount(total);
 
         return total;
@@ -59,5 +63,25 @@ public class OrderService {
         }
 
         return total;
+    }
+
+    private double applyBulkDiscount(double total, List<Item> items) {
+        int totalQuantity = calculateTotalQuantity(items);
+
+        if (totalQuantity > BULK_DISCOUNT_THRESHOLD) {
+            return total * (1 - BULK_DISCOUNT);
+        }
+
+        return total;
+    }
+
+    private int calculateTotalQuantity(List<Item> items) {
+        int totalQuantity = 0;
+
+        for (Item item : items) {
+            totalQuantity += item.getQuantity();
+        }
+
+        return totalQuantity;
     }
 }

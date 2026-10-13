@@ -100,4 +100,29 @@ class OrderServiceTest {
 
         assertEquals(100.0, result, 0.001);
     }
+
+
+    @Test
+    void shouldApplyOnePercentDiscountWhenOrderContainsMoreThanTenItems() {
+        List<Item> items = List.of(
+                new Item("Товар 1", 100, 6),
+                new Item("Товар 2", 100, 5)
+        );
+
+        double result = orderService.calc(items, "REGULAR");
+
+        assertEquals(1039.0, result, 0.001);
+    }
+
+    @Test
+    void shouldNotApplyBulkDiscountWhenOrderContainsExactlyTenItems() {
+        List<Item> items = List.of(
+                new Item("Товар", 100, 10)
+        );
+
+        double result = orderService.calc(items, "REGULAR");
+
+        assertEquals(1000.0, result, 0.001);
+    }
+
 }
